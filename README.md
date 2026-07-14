@@ -1,77 +1,88 @@
 # Personal Book Library (ระบบจัดการคลังหนังสือส่วนตัว)
 
-ระบบจัดการคลังหนังสือส่วนตัวที่พัฒนาขึ้นด้วย Node.js/Express (Backend) ร่วมกับ MongoDB (Mongoose) และ React.js (Frontend) โดยมีระบบยืนยันตัวตนด้วย JWT (JSON Web Token) และหน้าจอแอดมินสำหรับจัดการข้อมูลหนังสือ
+ระบบจัดการคลังหนังสือส่วนตัวที่พัฒนาขึ้นด้วย Node.js, Express และ MongoDB (Mongoose) ในฝั่ง Backend พร้อมหน้าจอแอดมินสำหรับการจัดการข้อมูลหนังสือด้วย React.js (Vite) ในฝั่ง Frontend โดยมีระบบการยืนยันตัวตนด้วย JWT (JSON Web Token) และรองรับการดักจับข้อผิดพลาดกรณีเซสชันหมดอายุเพื่อความปลอดภัยของข้อมูล
 
 ---
 
-## ข้อมูลสำหรับทดสอบเข้าสู่ระบบ (Credentials)
+## 🔑 ข้อมูลสำหรับใช้ล็อกอินทดสอบ (Test Credentials)
 
-ใช้บัญชีทดสอบด้านล่างนี้ในการล็อกอินผ่านหน้าจอแอดมิน:
-- **Username**: `admin`
-- **Password**: `password123`
+เพื่อใช้ล็อกอินเข้าสู่ระบบในหน้าจอแอดมิน:
+- **Username:** `admin`
+- **Password:** `password123`
 
 ---
 
-## โครงสร้างโปรเจกต์ (Project Structure)
+## 📁 โครงสร้างโปรเจกต์ (Project Structure)
 
 ```text
 ├── middleware/
-│   └── auth.js         # Auth middleware สำหรับตรวจสอบ JWT Token
+│   └── auth.js         # Backend: ตรวจสอบความถูกต้องของ JWT Token
 ├── models/
-│   └── Book.js         # Schema ของ Mongoose สำหรับข้อมูลหนังสือ
+│   └── Book.js         # Backend: Schema ข้อมูลหนังสือของ MongoDB
 ├── routes/
-│   ├── auth.js         # Endpoint การยืนยันตัวตน (/api/login)
-│   └── books.js        # Endpoints ของระบบหนังสือ (/api/books)
-├── frontend/
+│   ├── auth.js         # Backend: ระบบ Login (/api/login)
+│   └── books.js        # Backend: ระบบ CRUD หนังสือ (/api/books)
+├── server.js           # Backend: ไฟล์หลักสำหรับเปิดเซิร์ฟเวอร์
+├── .env                # Backend: ไฟล์เก็บตัวแปรสภาพแวดล้อมต่างๆ
+│
+├── frontend/           # โฟลเดอร์หน้าบ้าน (React + Vite)
+│   ├── index.html      # เทมเพลต HTML พร้อมสไตล์ชีท Tailwind CSS
+│   ├── vite.config.js  # ตั้งค่าตัวพัฒนาเว็บพร้อม Proxy ส่งคำขอ API
 │   └── src/
-│       ├── App.jsx     # Component หลักจัดการ State, Auth Guard และ UI
+│       ├── main.jsx    # ตัวควบคุมการเริ่มทำงานของ React App
+│       ├── App.jsx     # ตัวควบคุม State หลัก, Auth Guard, และ Layout หน้าเว็บ
 │       └── components/
-│           ├── Login.jsx     # Component แบบฟอร์ม Login
-│           ├── BookForm.jsx  # Component แบบฟอร์มเพิ่มหนังสือ
-│           └── BookList.jsx  # Component แสดงรายการหนังสือและปุ่มลบ
-├── .env                # ไฟล์เก็บ Environment Variables
-├── package.json        # Dependencies และ Scripts ของ Backend
-└── server.js           # จุดเริ่มต้นหลักในการรันระบบ Backend
+│           ├── Login.jsx     # กล่องฟอร์มกรอกผู้ใช้/รหัสผ่าน
+│           ├── BookForm.jsx  # ฟอร์มกรอกข้อมูลหนังสือใหม่
+│           └── BookList.jsx  # ส่วนแสดงผลรายการหนังสือพร้อมปุ่มลบ
 ```
 
 ---
 
-## ขั้นตอนการติดตั้งและการตั้งค่าโปรเจกต์
+## 🛠️ ขั้นตอนการติดตั้งและรันระบบ
 
-### 1. ตั้งค่า Environment Variables ของ Backend
-สร้างไฟล์ `.env` ไว้ที่โฟลเดอร์หลักของโปรเจกต์ (Root Directory) และกำหนดค่าดังนี้:
+### 1. การตั้งค่า Environment Variables ฝั่ง Backend
+สร้างไฟล์ `.env` ไว้ที่โฟลเดอร์นอกสุดของโปรเจกต์ (Root Directory) และกำหนดค่าดังนี้:
 
 ```env
 PORT=5000
-MONGODB_URI=mongodb://localhost:27017/personal_book_library
+MONGODB_URI=mongodb+srv://Far:FarPass1234@cluster0.pzh7awi.mongodb.net/personal_book_library?appName=Cluster0
 JWT_SECRET=supersecretjwtkey_37aa88161f
 MOCK_USER=admin
 MOCK_PASSWORD=password123
 ```
 
-### 2. การติดตั้งและเริ่มทำงานฝั่ง Backend
-1. เปิด Terminal และเข้าไปที่โฟลเดอร์หลักของโปรเจกต์
-2. ติดตั้ง dependencies:
+### 2. การติดตั้งและเริ่มรันระบบฝั่ง Backend (พอร์ต 5000)
+1. เปิด Terminal หลักของโปรเจกต์
+2. ติดตั้ง Dependencies:
    ```bash
    npm install
    ```
-3. เริ่มรัน Backend เซิร์ฟเวอร์:
-   * **โหมดพัฒนา (Development):**
-     ```bash
-     npm run dev
-     ```
-   * **โหมดใช้งานจริง (Production):**
-     ```bash
-     npm start
-     ```
-   * เมื่อเชื่อมต่อฐานข้อมูลสำเร็จ จะมี log ขึ้นว่า: `Book library server is up and ready to roll`
-
-### 3. การติดตั้งและเริ่มทำงานฝั่ง Frontend
-ในส่วนของ React.js (Frontend) ได้เตรียมโครงสร้างหลักไว้ในโฟลเดอร์ `frontend` สามารถนำไปประกอบร่วมกับเครื่องมือสร้างเว็บเช่น Vite หรือ Create React App ได้ตามความต้องการ:
-1. เข้าไปที่โฟลเดอร์ฝั่ง frontend
-2. ติดตั้ง dependencies ที่เกี่ยวข้อง:
+3. เริ่มต้นทำงานเซิร์ฟเวอร์หลังบ้าน:
    ```bash
-   npm install react react-dom
+   npm run dev
    ```
-3. รันโปรเจกต์ด้วยคำสั่งรันของเฟรมเวิร์กที่เลือก (เช่น `npm run dev` สำหรับ Vite)
-4. ตรวจสอบให้แน่ใจว่าได้ทำการ Proxy คำขอไปยัง API ของ Backend (http://localhost:5000) เรียบร้อยแล้ว
+   * เมื่อรันสำเร็จ จะมีข้อความแสดงสถานะ: `Book library server is up and ready to roll`
+
+---
+
+### 3. การติดตั้งและเริ่มรันระบบฝั่ง Frontend (พอร์ต 3000)
+1. เปิด Terminal หน้าต่างใหม่ (Tab ใหม่)
+2. เข้าสู่โฟลเดอร์หน้าบ้าน:
+   ```bash
+   cd frontend
+   ```
+3. ติดตั้ง Dependencies (หากสัญญาณอินเทอร์เน็ตหลุด/บล็อก ให้ติดตั้งผ่าน Server สำรอง):
+   * **คำสั่งแบบปกติ:**
+     ```bash
+     npm install
+     ```
+   * **คำสั่งสำรอง (หากเจอข้อผิดพลาด ECONNRESET):**
+     ```bash
+     npm install --registry=https://registry.npmmirror.com
+     ```
+4. เริ่มต้นทำงานเซิร์ฟเวอร์หน้าบ้าน:
+   ```bash
+   npm run dev
+   ```
+5. เปิดเบราว์เซอร์แล้วเข้าใช้งานที่ลิงก์: **`http://localhost:3000`**
