@@ -1,0 +1,25 @@
+meta {
+  name: Add Book
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/books
+  body: json
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{token}}
+}
+
+body:json {
+  {
+    "title": "The Hobbit",
+    "author": "J.R.R. Tolkien",
+    "genre": "Fantasy",
+    "publishedYear": 1937,
+    "description": "A fantasy novel and children's book by J. R. R. Tolkien."
+  }
+}

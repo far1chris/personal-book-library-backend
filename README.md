@@ -86,3 +86,19 @@ MOCK_PASSWORD=password123
    npm run dev
    ```
 5. เปิดเบราว์เซอร์แล้วเข้าใช้งานที่ลิงก์: **`http://localhost:3000`**
+
+---
+
+### 📂 การทดสอบ API ด้วย Bruno
+ในโฟลเดอร์ `api-collection/` มี API Collection สำหรับใช้งานกับแอปพลิเคชัน Bruno ประกอบด้วย:
+- `POST /api/login` (เข้าสู่ระบบเพื่อรับ Token)
+- `GET /api/books` (ดึงรายการหนังสือทั้งหมด)
+- `POST /api/books` (เพิ่มหนังสือใหม่ - ต้องการ Bearer Token)
+- `DELETE /api/books/:id` (ลบหนังสือออก - ต้องการ Bearer Token)
+
+**วิธีใช้:**
+1. เปิดโปรแกรม Bruno
+2. เลือก **Open Collection** แล้วเลือกโฟลเดอร์ `api-collection/`
+3. ในโปรแกรม ให้เลือก Environment เป็น `Local` จากมุมบนขวา เพื่อโหลด `baseUrl`
+4. รัน `Login` เพื่อขอ Token และนำค่านั้นมาใส่แทนค่าตัวแปร `token` ใน Environment ของ Bruno
+

@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Login from './components/Login';
 import BookForm from './components/BookForm';
 import BookList from './components/BookList';
+import Modal from './components/Modal';
 
 export default function App() {
   const [token, setToken] = useState(localStorage.getItem('token') || null);
@@ -10,6 +11,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isFetched, setIsFetched] = useState(false);
+  const [modal, setModal] = useState(null); // { isOpen, type, message, onConfirm, onCancel, onClose }
 
   // Form State
   const [formData, setFormData] = useState({
@@ -28,8 +30,15 @@ export default function App() {
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
     if (!storedToken) {
-      alert('กรุณาเข้าสู่ระบบก่อนใช้งาน');
-      setToken(null);
+      setModal({
+        isOpen: true,
+        type: 'info',
+        message: 'กรุณาเข้าสู่ระบบก่อนใช้งาน',
+        onClose: () => {
+          setModal(null);
+          setToken(null);
+        }
+      });
     }
   }, []);
 
@@ -75,9 +84,19 @@ export default function App() {
     if (!isFetched) return;
 
     if (books.length > prevBooksLength.current) {
-      alert('เพิ่มหนังสือเรียบร้อยแล้วนะ!');
+      setModal({
+        isOpen: true,
+        type: 'info',
+        message: 'เพิ่มหนังสือเรียบร้อยแล้วนะ!',
+        onClose: () => setModal(null)
+      });
     } else if (books.length < prevBooksLength.current) {
-      alert('ลบหนังสือเรียบร้อยแล้ว!');
+      setModal({
+        isOpen: true,
+        type: 'info',
+        message: 'ลบหนังสือเรียบร้อยแล้ว!',
+        onClose: () => setModal(null)
+      });
     }
     prevBooksLength.current = books.length;
   }, [books, isFetched]);
@@ -164,50 +183,62 @@ export default function App() {
   };
 
   // Delete book handler
-  const handleDeleteBook = async (id) => {
-    if (!window.confirm('คุณแน่ใจว่าต้องการลบหนังสือเล่มนี้?')) return;
+  const handleDeleteBook = (id) => {
+    setModal({
+      isOpen: true,
+      type: 'confirm',
+      message: 'คุณแน่ใจว่าต้องการลบหนังสือเล่มนี้หรือไม่?',
+      onConfirm: async () => {
+        setModal(null);
+        setLoading(true);
+        setError(null);
 
-    setLoading(true);
-    setError(null);
+        try {
+          const response = await fetch(`/api/books/${id}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          });
 
-    try {
-      const response = await fetch(`/api/books/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+          if (response.status === 401) {
+            handleLogout();
+            return;
+          }
 
-      if (response.status === 401) {
-        handleLogout();
-        return;
-      }
+          if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.error || 'การลบหนังสือล้มเหลว');
+          }
 
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'การลบหนังสือล้มเหลว');
-      }
-
-      setBooks((prev) => prev.filter((book) => book._id !== id));
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
+          setBooks((prev) => prev.filter((book) => book._id !== id));
+        } catch (err) {
+          setError(err.message);
+        } finally {
+          setLoading(false);
+        }
+      },
+      onCancel: () => setModal(null)
+    });
   };
 
   // Render Login page if token is missing
   if (!token) {
-    return <Login onLoginSuccess={handleLoginSuccess} />;
+    return (
+      <>
+        <Login onLoginSuccess={handleLoginSuccess} />
+        {modal && <Modal {...modal} />}
+      </>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans antialiased">
+    <div className="min-h-screen bg-[#FAF8F5] text-stone-800 font-sans antialiased">
       {/* Header section */}
-      <header className="sticky top-0 z-50 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 px-6 py-4">
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-stone-200 px-6 py-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="bg-gradient-to-tr from-emerald-500 to-teal-500 p-2.5 rounded-xl text-slate-950">
+            <div className="bg-amber-50 border border-amber-100 p-2.5 rounded-xl text-amber-700">
               <svg
                 className="w-6 h-6"
                 fill="none"
@@ -217,31 +248,31 @@ export default function App() {
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth={2}
+                  strokeWidth={1.5}
                   d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
                 />
               </svg>
             </div>
             <div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
-                Personal Book Library
+              <h1 className="text-xl font-bold font-serif text-stone-900 tracking-tight">
+                The Chapters
               </h1>
-              <p className="text-xs text-slate-400">ระบบจัดการคลังหนังสือส่วนตัว</p>
+              <p className="text-xs text-stone-500">คลังหนังสือส่วนตัวของคุณ</p>
             </div>
           </div>
 
           <div className="flex items-center gap-6">
             <div className="hidden sm:block text-right">
-              <span className="text-xs text-slate-500 uppercase tracking-wider block">
-                จำนวนหนังสือรวม
+              <span className="text-[10px] text-stone-400 uppercase tracking-wider block font-bold">
+                จำนวนหนังสือในคลัง
               </span>
-              <span className="text-sm font-bold text-slate-300">
+              <span className="text-sm font-bold text-stone-700">
                 {totalBooksCount} เล่ม
               </span>
             </div>
             <button
               onClick={handleLogout}
-              className="text-xs font-semibold text-slate-300 hover:text-rose-400 bg-slate-800 hover:bg-rose-500/10 border border-slate-700 hover:border-rose-500/30 px-4 py-2.5 rounded-xl transition duration-200"
+              className="text-xs font-semibold text-stone-600 hover:text-rose-600 bg-stone-100 hover:bg-rose-50 border border-stone-200 hover:border-rose-200 px-4 py-2.5 rounded-xl transition duration-200"
             >
               ออกจากระบบ
             </button>
@@ -252,9 +283,9 @@ export default function App() {
       {/* Main Container */}
       <main className="max-w-7xl mx-auto px-6 py-8">
         {error && (
-          <div className="mb-8 p-4 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-xl text-sm flex justify-between items-center">
+          <div className="mb-8 p-4 bg-rose-50 border border-rose-100 text-rose-600 rounded-xl text-sm flex justify-between items-center font-medium">
             <span>{error}</span>
-            <button onClick={() => setError(null)} className="text-slate-400 hover:text-slate-200 font-bold">
+            <button onClick={() => setError(null)} className="text-stone-400 hover:text-stone-600 font-bold text-lg">
               &times;
             </button>
           </div>
@@ -274,18 +305,11 @@ export default function App() {
 
           {/* Right panel: Book List */}
           <div className="lg:col-span-2">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-lg font-bold text-slate-200 flex items-center gap-2">
-                รายการหนังสือทั้งหมด
-                <span className="px-2 py-0.5 text-xs bg-slate-800 text-slate-400 rounded-md">
-                  {totalBooksCount}
-                </span>
-              </h2>
-            </div>
             <BookList books={books} onDelete={handleDeleteBook} loading={loading} />
           </div>
         </div>
       </main>
+      {modal && <Modal {...modal} />}
     </div>
   );
 }
