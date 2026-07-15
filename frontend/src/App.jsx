@@ -188,6 +188,8 @@ export default function App() {
       isOpen: true,
       type: 'confirm',
       message: 'คุณแน่ใจว่าต้องการลบหนังสือเล่มนี้หรือไม่?',
+      isDanger: true,
+      confirmText: 'ยืนยันลบ',
       onConfirm: async () => {
         setModal(null);
         setLoading(true);
@@ -217,6 +219,23 @@ export default function App() {
         } finally {
           setLoading(false);
         }
+      },
+      onCancel: () => setModal(null)
+    });
+  };
+
+  // Logout Click Handler showing confirmation modal
+  const handleLogoutClick = () => {
+    setModal({
+      isOpen: true,
+      type: 'confirm',
+      message: 'คุณแน่ใจว่าต้องการออกจากระบบใช่หรือไม่?',
+      isDanger: false,
+      confirmText: 'ออกจากระบบ',
+      cancelText: 'ยกเลิก',
+      onConfirm: () => {
+        setModal(null);
+        handleLogout();
       },
       onCancel: () => setModal(null)
     });
@@ -255,7 +274,7 @@ export default function App() {
             </div>
             <div>
               <h1 className="text-xl font-bold font-serif text-stone-900 tracking-tight">
-                The Chapters
+                The Book
               </h1>
               <p className="text-xs text-stone-500">คลังหนังสือส่วนตัวของคุณ</p>
             </div>
@@ -271,7 +290,7 @@ export default function App() {
               </span>
             </div>
             <button
-              onClick={handleLogout}
+              onClick={handleLogoutClick}
               className="text-xs font-semibold text-stone-600 hover:text-rose-600 bg-stone-100 hover:bg-rose-50 border border-stone-200 hover:border-rose-200 px-4 py-2.5 rounded-xl transition duration-200"
             >
               ออกจากระบบ
