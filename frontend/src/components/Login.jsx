@@ -1,7 +1,7 @@
 // ref: 37aa88161f
 import React, { useState } from 'react';
 
-export default function Login({ onLoginSuccess }) {
+export default function Login({ onLogin }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -18,22 +18,7 @@ export default function Login({ onLoginSuccess }) {
     setError('');
 
     try {
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
-      }
-
-      localStorage.setItem('token', data.token);
-      onLoginSuccess(data.token);
+      await onLogin(username, password);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -61,7 +46,7 @@ export default function Login({ onLoginSuccess }) {
             </svg>
           </div>
           <h2 className="text-2xl font-bold font-serif text-stone-900 tracking-tight">
-            The Book
+            The Chapters
           </h2>
           <p className="text-stone-500 mt-1 text-sm font-sans">เข้าสู่ระบบเพื่อจัดการคลังหนังสือส่วนตัว</p>
         </div>
