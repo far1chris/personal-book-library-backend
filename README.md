@@ -15,26 +15,32 @@
 ## 📁 โครงสร้างโปรเจกต์ (Project Structure)
 
 ```text
-├── middleware/
-│   └── auth.js         # Backend: ตรวจสอบความถูกต้องของ JWT Token
-├── models/
-│   └── Book.js         # Backend: Schema ข้อมูลหนังสือของ MongoDB
-├── routes/
-│   ├── auth.js         # Backend: ระบบ Login (/api/login)
-│   └── books.js        # Backend: ระบบ CRUD หนังสือ (/api/books)
-├── server.js           # Backend: ไฟล์หลักสำหรับเปิดเซิร์ฟเวอร์
-├── .env                # Backend: ไฟล์เก็บตัวแปรสภาพแวดล้อมต่างๆ
+├── backend/            # โฟลเดอร์หลังบ้าน (Node.js + Express)
+│   ├── middleware/
+│   │   └── auth.js     # Backend: ตรวจสอบความถูกต้องของ JWT Token
+│   ├── models/
+│   │   └── Book.js     # Backend: Schema ข้อมูลหนังสือของ MongoDB
+│   ├── routes/
+│   │   ├── auth.js     # Backend: ระบบ Login (/api/login)
+│   │   └── books.js    # Backend: ระบบ CRUD หนังสือ (/api/books)
+│   ├── server.js       # Backend: ไฟล์หลักสำหรับเปิดเซิร์ฟเวอร์
+│   └── .env            # Backend: ไฟล์เก็บตัวแปรสภาพแวดล้อมต่างๆ
 │
 ├── frontend/           # โฟลเดอร์หน้าบ้าน (React + Vite)
 │   ├── index.html      # เทมเพลต HTML พร้อมสไตล์ชีท Tailwind CSS
 │   ├── vite.config.js  # ตั้งค่าตัวพัฒนาเว็บพร้อม Proxy ส่งคำขอ API
 │   └── src/
 │       ├── main.jsx    # ตัวควบคุมการเริ่มทำงานของ React App
-│       ├── App.jsx     # ตัวควบคุม State หลัก, Auth Guard, และ Layout หน้าเว็บ
+│       ├── App.jsx     # ตัวควบคุม Layout หน้าเว็บหลัก
+│       ├── hooks/
+│       │   ├── useAuth.js   # Logic: ระบบตรวจสอบและจัดการ Token
+│       │   └── useBooks.js  # Logic: ระบบเพิ่ม ลบ ค้นหา ดึงข้อมูลหนังสือ
 │       └── components/
 │           ├── Login.jsx     # กล่องฟอร์มกรอกผู้ใช้/รหัสผ่าน
 │           ├── BookForm.jsx  # ฟอร์มกรอกข้อมูลหนังสือใหม่
-│           └── BookList.jsx  # ส่วนแสดงผลรายการหนังสือพร้อมปุ่มลบ
+│           ├── BookList.jsx  # ส่วนแสดงผลรายการหนังสือพร้อมแถบค้นหา
+│           ├── BookCard.jsx  # การ์ดรูปเล่มสันหนังสือแต่ละเล่ม
+│           └── Modal.jsx     # ระบบแสดงกล่องโต้ตอบการแจ้งเตือน
 ```
 
 ---
@@ -42,7 +48,7 @@
 ## 🛠️ ขั้นตอนการติดตั้งและรันระบบ
 
 ### 1. การตั้งค่า Environment Variables ฝั่ง Backend
-สร้างไฟล์ `.env` ไว้ที่โฟลเดอร์นอกสุดของโปรเจกต์ (Root Directory) และกำหนดค่าดังนี้:
+สร้างไฟล์ `.env` ไว้ที่โฟลเดอร์ `backend/` และกำหนดค่าดังนี้:
 
 ```env
 PORT=5000
@@ -53,12 +59,16 @@ MOCK_PASSWORD=password123
 ```
 
 ### 2. การติดตั้งและเริ่มรันระบบฝั่ง Backend (พอร์ต 5000)
-1. เปิด Terminal หลักของโปรเจกต์
-2. ติดตั้ง Dependencies:
+1. เปิด Terminal
+2. เข้าสู่โฟลเดอร์หลังบ้าน:
+   ```bash
+   cd backend
+   ```
+3. ติดตั้ง Dependencies:
    ```bash
    npm install
    ```
-3. เริ่มต้นทำงานเซิร์ฟเวอร์หลังบ้าน:
+4. เริ่มต้นทำงานเซิร์ฟเวอร์หลังบ้าน:
    ```bash
    npm run dev
    ```
