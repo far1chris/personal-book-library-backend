@@ -67,7 +67,7 @@ export default function App() {
             </div>
             <div>
               <h1 className="text-xl font-bold font-serif text-stone-900 tracking-tight">
-                The Chapters
+                The Book
               </h1>
               <p className="text-xs text-stone-500">คลังหนังสือส่วนตัวของคุณ</p>
             </div>

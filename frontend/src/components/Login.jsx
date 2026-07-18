@@ -46,7 +46,7 @@ export default function Login({ onLogin }) {
             </svg>
           </div>
           <h2 className="text-2xl font-bold font-serif text-stone-900 tracking-tight">
-            The Chapters
+            The Book
           </h2>
           <p className="text-stone-500 mt-1 text-sm font-sans">เข้าสู่ระบบเพื่อจัดการคลังหนังสือส่วนตัว</p>
         </div>
